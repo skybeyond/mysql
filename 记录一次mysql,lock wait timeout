@@ -1,0 +1,100 @@
+1.show engine innodb status
+2.错误信息：
+  ------------------------
+LATEST DETECTED DEADLOCK
+------------------------
+2021-02-01 10:45:30 0x7f5951688700
+*** (1) TRANSACTION:
+TRANSACTION 9998297, ACTIVE 49 sec fetching rows
+mysql tables in use 1, locked 1
+LOCK WAIT 5 lock struct(s), heap size 1128, 37 row lock(s), undo log entries 17
+MySQL thread id 1009597, OS thread handle 140021592803072, query id 20262978 localhost root Updating
+delete from `Media_Account_Cost` where `data_date` in ('2021-01-30') and `id_platform` = 100 and `level` <> 0
+*** (1) WAITING FOR THIS LOCK TO BE GRANTED: （等待下方锁释放  等待超时）
+RECORD LOCKS space id 532 page no 57789 n bits 104 index PRIMARY of table `SuperSet`.`Media_Account_Cost` trx id 9998297 lock_mode X locks rec but not gap waiting
+Record lock, heap no 35 PHYSICAL RECORD: n_fields 37; compact format; info bits 0
+ 0: len 8; hex 000000000025c80d; asc      %  ;;
+ 1: len 6; hex 000000000000; asc       ;;
+ 2: len 7; hex 80000000000000; asc        ;;
+ 3: len 16; hex 31363836333234303638333434383339; asc 1686324068344839;;
+ 4: len 29; hex e6b0b8e5ae9ae58cbae4bea0e6b3b0e58581e799bee8b4a7e5ba972d36; asc                            -6;;
+ 5: len 16; hex 31363338353539313333353838343931; asc 1638559133588491;;
+ 6: len 30; hex e4b88ae6b5b7e4bbb0e8bf88e7bd91e7bb9ce7a791e68a80e69c89e99990; asc                               ; (total 45 bytes);
+ 7: len 11; hex 3739353138343132393238; asc 79518412928;;
+ 8: len 4; hex 80000003; asc     ;;
+ 9: len 3; hex 313030; asc 100;;
+ 10: len 30; hex e4b88ae6b5b7e4bbb0e8bf88e7bd91e7bb9ce7a791e68a80e69c89e99990; asc                               ; (total 36 bytes);
+ 11: len 3; hex 8fca3e; asc   >;;
+ 12: len 18; hex 39313331303131374d41314a344e4c34374e; asc 91310117MA1J4NL47N;;
+ 13: len 30; hex e4b88ae6b5b7e69da5e99c86e7a791e68a80e69c89e99990e585ace58fb8; asc                               ;;
+ 14: len 18; hex 39313331303131374d41314a344e4c34374e; asc 91310117MA1J4NL47N;;
+ 15: len 30; hex e4b88ae6b5b7e69da5e99c86e7a791e68a80e69c89e99990e585ace58fb8; asc                               ;;
+ 16: len 4; hex 80000018; asc     ;;
+ 17: len 9; hex e4bbbbe4b8bde8908d; asc          ;;
+ 18: len 4; hex 80000025; asc    %;;
+ 19: len 4; hex 80000001; asc     ;;
+ 20: len 4; hex 80000190; asc     ;;
+ 21: len 4; hex 80000002; asc     ;;
+ 22: len 6; hex e794b5e59586; asc       ;;
+ 23: len 6; hex e99bb6e594ae; asc       ;;
+ 24: len 17; hex e7bbbce59088e7b1bb3243e794b5e59586; asc          2C      ;;
+ 25: len 4; hex 80000000; asc     ;;
+ 26: len 0; hex ; asc ;;
+ 27: len 4; hex 80000000; asc     ;;
+ 28: len 0; hex ; asc ;;
+ 29: len 4; hex 80000000; asc     ;;
+ 30: len 30; hex 66333463623236302d386234652d343736652d626634302d303234646338; asc f34cb260-8b4e-476e-bf40-024dc8; (total 36 bytes);
+ 31: len 16; hex e4bb8ae697a5e5a4b4e69da12d435043; asc             -CPC;;
+ 32: len 1; hex 30; asc 0;;
+ 33: len 0; hex ; asc ;;
+ 34: len 9; hex 8000000000002111f8; asc       !  ;;
+ 35: len 9; hex 8000000000002111f8; asc       !  ;;
+ 36: len 5; hex 99a8be9abb; asc      ;;
+
+*** (2) TRANSACTION:
+TRANSACTION 421584317191352, ACTIVE 137 sec fetching rows
+mysql tables in use 6, locked 6
+46869 lock struct(s), heap size 5202040, 2324372 row lock(s)
+MySQL thread id 1009405, OS thread handle 140021594621696, query id 20261660 event_scheduler Sending data
+insert into  Warning_Record_current  
+select 
+  distinct 
+    '3天余额不足预警' as 'type',
+    b.media_account_id,
+    b.media_account_name,
+    v.business_unit as 'region',
+    3*max(b.cost) as 'estimate_cost',
+    f.total_balance+sum( e.total_balance) as balance,
+  d.Sales as sales_owner ,
+  d.idCompany,
+  case  b.idOperationModel when 1 then '非自运营' else '自运营' end as operation_type,
+  f.total_balance+sum( e.total_balance)-3*max(b.cost) as absolute_gap,
+  case when (f.total_balance+sum( e.total_balance)-3*max(b.cost)) <0 then '1-必须充值'
+    when ((f.total_balance+sum( e.total_balance)-3*max(b.cost))/(3*max(b.cost)) <0.1 and  (f.total_balance+sum( e.total_balance)-3*max(b.cost))/(3*max(b.cost)) >=0 )
+      then '2-强烈建议'
+    when ((f.total_balance+sum( e.total_balance)-3*max(b.cost))/(3*
+max(b.cost)) <0.2 and  (f.total_balance+sum( e.total_balance)-3*max(b.cost))/(3*max(
+*** (2) HOLDS THE LOCK(S):   （持有锁）
+RECORD LOCKS space id 532 page no 57789 n bits 104 index PRIMARY of table `SuperSet`.`Media_Account_Cost` trx id 421584317191352 lock mode S locks rec but not gap
+Record lock, heap no 2 PHYSICAL RECORD: n_fields 37; compact format; info bits 0
+ 0: len 8; hex 000000000025c404; asc      %  ;;
+ 1: len 6; hex 000000000000; asc       ;;
+ 2: len 7; hex 80000000000000; asc        ;;
+ 3: len 16; hex 31363637303232353037353234313130; asc 1667022507524110;;
+ 4: len 30; hex e58d8ee58d97e9b281e78fad2de4b88ae6b5b7e4bc98e89083e7949fe789; asc             -                 ; (total 67 bytes);
+ 5: len 16; hex 31363637303232353037353234313130; asc 1667022507524110;;
+ 6: len 30; hex e58d8ee58d97e9b281e78fad2de4b88ae6b5b7e4bc98e89083e7949fe789; asc             -                 ; (total 67 bytes);
+ 7: len 16; hex 31363631363839353833323230373439; asc 1661689583220749;;
+ 8: len 4; hex 80000002; asc     ;;
+ 9: len 3; hex 313030; asc 100;;
+ 10: len 30; hex e4b88ae6b5b7e4bc98e89083e7949fe789a9e7a791e68a80e69c89e99990; asc                               ; (total 36 bytes);
+ 
+ 3.insert into a select * from b
+    RR级别下会将b表所有记录上行锁，以及所有记录间隔上gap锁；对bak插入的记录加行锁；
+    RC级别下b表不加任何锁；对bak插入的记录加行锁；
+    mysql innodb默认隔离级别为RR级别
+    
+ 4.参考
+      https://blog.csdn.net/weixin_39004901/article/details/105563905
+      https://blog.csdn.net/weixin_39004901/article/details/105563905
+
